@@ -1,6 +1,6 @@
 {
   "name": "xiaozhi-client",
-  "version": "1.8.3",
+  "version": "1.9.3-beta.0",
   "description": "小智 AI 客户端 命令行工具",
   "repository": {
     "type": "git",
@@ -20,7 +20,7 @@
     "dist",
     "docs",
     "templates",
-    "web/dist",
+    "apps/frontend/dist",
     "README.md",
     "LICENSE"
   ],
@@ -33,25 +33,28 @@
     "xiaozhi-client": "dist/cli.js"
   },
   "scripts": {
-    "build": "pnpm run build:web && cross-env NODE_ENV=production tsup",
-    "build:web": "cd web && pnpm install && pnpm run build",
-    "dev": "cross-env NODE_ENV=development tsup --watch",
-    "test": "vitest run",
-    "test:silent": "vitest run --silent=true",
-    "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage",
-    "test:ui": "vitest --ui",
-    "format": "biome format --write .",
-    "lint": "biome lint --write .",
-    "type:check": "tsc --project tsconfig.typecheck.json",
-    "check": "biome check .",
-    "check:fix": "biome check --write --unsafe .",
+    "build": "pnpm run build:packages && pnpm run build:web && cross-env NODE_ENV=production tsup --config config/tsup.config.ts",
+    "build:packages": "pnpm --filter './packages/*' run build",
+    "build:web": "cd apps/frontend && pnpm install && pnpm run build",
+    "dev": "pnpm run build:packages && cross-env NODE_ENV=development tsup --config config/tsup.config.ts --watch",
+    "test": "vitest run --config config/vitest.config.ts",
+    "test:silent": "vitest run --silent=true --config config/vitest.config.ts",
+    "test:watch": "vitest --config config/vitest.config.ts",
+    "test:coverage": "vitest run --coverage --config config/vitest.config.ts",
+    "test:ui": "vitest --ui --config config/vitest.config.ts",
+    "format": "biome format --write --config-path=config/biome.json .",
+    "lint": "biome lint --write --config-path=config/biome.json .",
+    "type:check": "tsc --project config/tsconfig.typecheck.json",
+    "check": "biome check --config-path=config/biome.json .",
+    "check:fix": "biome check --write --unsafe --config-path=config/biome.json .",
     "check:all": "pnpm check && pnpm type:check && pnpm spell:check && pnpm duplicate:check",
-    "spell:check": "cspell \"src/**/*.ts\" \"*.md\" \"*.json\"",
-    "duplicate:check": "jscpd src/",
-    "docker:update-version": "node scripts/update-dockerfile-version.js",
+    "spell:check": "cspell --config config/cspell.json .",
+    "duplicate:check": "jscpd apps/backend/",
+    "docker:update-version": "node docker/scripts/update-version.js",
     "example": "node --loader ts-node/esm",
-    "docs:dev": "cd docs && mintlify dev"
+    "docs:dev": "cd docs && mintlify dev",
+    "release": "npx release-it --config config/release-it.json",
+    "release:dry": "npx release-it --config config/release-it.json --dry-run"
   },
   "dependencies": {
     "@hono/node-server": "^1.17.1",
@@ -105,6 +108,7 @@
     "tsup": "^8.5.0",
     "tsx": "^4.20.5",
     "typescript": "^5.9.2",
+    "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^3.2.4"
   },
   "pnpm": {
@@ -115,7 +119,8 @@
       "axios": ">=1.12.0",
       "@conventional-changelog/git-client": ">=2.0.0",
       "vite@>=7.1.0 <=7.1.10": ">=7.1.11",
-      "hono@>=1.1.0 <4.10.3": ">=4.10.3"
+      "hono@>=1.1.0 <4.10.3": ">=4.10.3",
+      "js-yaml@<4.1.1": ">=4.1.1"
     }
   },
   "packageManager": "pnpm@10.13.1"
