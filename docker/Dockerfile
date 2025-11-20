@@ -23,9 +23,8 @@ ENV npm_config_dist_url=https://npmmirror.com/dist \
 RUN apt-get update && apt-get install -y \
     dumb-init \
     git \
-    python3 \
+    python3-full \
     python3-pip \
-    python3-venv \
     && rm -rf /var/lib/apt/lists/* \
     && ln -sf /usr/bin/python3 /usr/bin/python \
     && npm install -g pnpm xiaozhi-client@${XIAOZHI_VERSION} \
